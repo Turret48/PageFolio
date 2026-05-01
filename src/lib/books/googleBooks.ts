@@ -16,9 +16,23 @@ const FICTION_SIGNALS = [
   'mystery', 'science fiction', 'horror', 'short stories',
 ]
 
+const EXCLUDED_CATEGORIES = [
+  'science', 'chemistry', 'physics', 'mathematics', 'medicine',
+  'medical', 'journal', 'periodical', 'juvenile', "children's",
+]
+
 function isNonfiction(categories: string[]): boolean {
   const lower = categories.map((c) => c.toLowerCase()).join(' ')
-  return !FICTION_SIGNALS.some((s) => lower.includes(s))
+  if (FICTION_SIGNALS.some((s) => lower.includes(s))) return false
+  if (EXCLUDED_CATEGORIES.some((s) => lower.includes(s))) return false
+  return true
+}
+
+function isUsableBook(candidate: BookCandidate): boolean {
+  if (!candidate.coverUrl) return false
+  if (candidate.author === 'Unknown') return false
+  if (candidate.publishedYear && candidate.publishedYear < 1950) return false
+  return true
 }
 
 function toCandidate(item: Record<string, unknown>): BookCandidate {
@@ -42,8 +56,14 @@ function toCandidate(item: Record<string, unknown>): BookCandidate {
 }
 
 export async function searchBooks(query: string): Promise<BookCandidate[]> {
-  const url = `${BASE}?q=${encodeURIComponent(query)}&maxResults=20&key=${process.env.GOOGLE_BOOKS_API_KEY}`
-  const res = await fetch(url, { next: { revalidate: 300 } })
+  const params = new URLSearchParams({
+    q: query,
+    maxResults: '20',
+    printType: 'books',       // books only — no journals, magazines, or articles
+    langRestrict: 'en',
+    key: process.env.GOOGLE_BOOKS_API_KEY!,
+  })
+  const res = await fetch(`${BASE}?${params}`, { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Google Books search failed')
 
   const data = (await res.json()) as { items?: Record<string, unknown>[] }
@@ -51,7 +71,7 @@ export async function searchBooks(query: string): Promise<BookCandidate[]> {
 
   return data.items
     .map(toCandidate)
-    .filter((b) => isNonfiction(b.categories))
+    .filter((b) => isNonfiction(b.categories) && isUsableBook(b))
 }
 
 export async function searchByISBN(isbn: string): Promise<BookCandidate[]> {

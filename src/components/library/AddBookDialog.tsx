@@ -153,25 +153,25 @@ export default function AddBookDialog() {
                 <p className="text-sm text-muted text-center py-6">No nonfiction books found.</p>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {results.map((book) => (
                   <button
                     key={book.googleBooksId}
                     onClick={() => handleAdd(book.googleBooksId)}
                     disabled={adding === book.googleBooksId}
-                    className="text-left bg-background rounded-card border border-border overflow-hidden hover:border-muted transition-colors disabled:opacity-50"
+                    className="text-left bg-background rounded-lg border border-border overflow-hidden hover:border-muted transition-colors disabled:opacity-50"
                   >
                     <div className="aspect-[2/3] bg-border/30">
                       {book.coverUrl
                         ? <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center p-2"><span className="font-display text-[10px] text-muted text-center leading-tight">{book.title}</span></div>
+                        : <div className="w-full h-full flex items-center justify-center p-1"><span className="font-display text-[9px] text-muted text-center leading-tight">{book.title}</span></div>
                       }
                     </div>
-                    <div className="p-2">
-                      <p className="font-display text-xs font-medium text-ink leading-tight line-clamp-2">{book.title}</p>
-                      <p className="text-[10px] text-muted mt-0.5 truncate">{book.author}</p>
+                    <div className="p-1.5">
+                      <p className="font-display text-[10px] font-medium text-ink leading-tight line-clamp-2">{book.title}</p>
+                      <p className="text-[9px] text-muted mt-0.5 truncate">{book.author}</p>
                       {adding === book.googleBooksId && (
-                        <p className="text-[10px] text-cayenne mt-1">Adding…</p>
+                        <p className="text-[9px] text-cayenne mt-0.5">Adding…</p>
                       )}
                     </div>
                   </button>
