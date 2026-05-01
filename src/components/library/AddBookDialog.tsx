@@ -26,7 +26,7 @@ export default function AddBookDialog() {
   const debouncedQuery = useDebounce(query, 400)
 
   useEffect(() => {
-    if (!debouncedQuery.trim() || scanMode) { setResults([]); return }
+    if (debouncedQuery.trim().length < 3 || scanMode) { setResults([]); return }
     setLoading(true)
     setError(null)
     fetch(`/api/books/search?q=${encodeURIComponent(debouncedQuery)}`)

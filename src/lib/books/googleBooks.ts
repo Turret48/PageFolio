@@ -21,15 +21,23 @@ const EXCLUDED_CATEGORIES = [
   'medical', 'journal', 'periodical', 'juvenile', "children's",
 ]
 
-const DERIVATIVE_PATTERNS = [
+const DERIVATIVE_TITLE_PATTERNS = [
   /^summary[:\s&]/i,
   /^summary of /i,
   /^analysis of /i,
   /^study guide/i,
   /^workbook/i,
+  /^book summary/i,
   /^key (insights|takeaways|lessons)/i,
   /\bin \d+ minutes\b/i,
-  /\b(penzen|getabstract|blinkist|sapiens summaries|black book)\b/i,
+  /\bsummarized (for|by)\b/i,
+  /\b(penzen|getabstract|blinkist|sapiens summaries)\b/i,
+]
+
+const DERIVATIVE_PUBLISHERS = [
+  'quality summaries', 'ant hive media', 'save time summaries',
+  'goldmine reads', 'book summary', 'business book summaries',
+  'thronfield ashford', 'instaread', 'summary station',
 ]
 
 function isNonfiction(categories: string[]): boolean {
@@ -39,19 +47,45 @@ function isNonfiction(categories: string[]): boolean {
   return true
 }
 
-function isDerivativeWork(title: string): boolean {
-  return DERIVATIVE_PATTERNS.some((p) => p.test(title))
+function isDerivativeWork(title: string, publisher: string): boolean {
+  if (DERIVATIVE_TITLE_PATTERNS.some((p) => p.test(title))) return true
+  if (DERIVATIVE_PUBLISHERS.some((p) => publisher.includes(p))) return true
+  return false
 }
 
-function isUsableBook(candidate: BookCandidate, ratingsCount: number | null): boolean {
+function isUsableBook(
+  candidate: BookCandidate,
+  ratingsCount: number | null,
+  language: string,
+  publisher: string,
+): boolean {
+  if (language !== 'en') return false
   if (!candidate.coverUrl) return false
   if (candidate.author === 'Unknown') return false
   if (candidate.publishedYear && candidate.publishedYear < 1950) return false
-  if (isDerivativeWork(candidate.title)) return false
-  // Drop books with a very low rating count — proxy for obscurity.
-  // Books with no rating at all are kept (could be popular but not yet rated on Google Books).
+  if (isDerivativeWork(candidate.title, publisher)) return false
   if (ratingsCount !== null && ratingsCount < 10) return false
   return true
+}
+
+function normalizeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\b(the|a|an|and|of|in|to|by)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 35)
+}
+
+function deduplicate(books: BookCandidate[]): BookCandidate[] {
+  const seen = new Set<string>()
+  return books.filter((b) => {
+    const key = `${b.author.toLowerCase().slice(0, 20)}|${normalizeTitle(b.title)}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 function toCandidate(item: Record<string, unknown>): BookCandidate {
@@ -88,15 +122,19 @@ export async function searchBooks(query: string): Promise<BookCandidate[]> {
   const data = (await res.json()) as { items?: Record<string, unknown>[] }
   if (!data.items) return []
 
-  return data.items.reduce<BookCandidate[]>((acc, item) => {
+  const filtered = data.items.reduce<BookCandidate[]>((acc, item) => {
     const candidate = toCandidate(item)
     const info = (item.volumeInfo ?? {}) as Record<string, unknown>
     const ratingsCount = (info.ratingsCount as number | undefined) ?? null
-    if (isNonfiction(candidate.categories) && isUsableBook(candidate, ratingsCount)) {
+    const language = (info.language as string | undefined) ?? ''
+    const publisher = ((info.publisher as string | undefined) ?? '').toLowerCase()
+    if (isNonfiction(candidate.categories) && isUsableBook(candidate, ratingsCount, language, publisher)) {
       acc.push(candidate)
     }
     return acc
   }, [])
+
+  return deduplicate(filtered)
 }
 
 export async function searchByISBN(isbn: string): Promise<BookCandidate[]> {
