@@ -5,7 +5,7 @@ import { userBooks, books, userProgress } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import CurrentlyReadingCard from '@/components/library/CurrentlyReadingCard'
 import BookGrid from '@/components/library/BookGrid'
-import Link from 'next/link'
+import AddBookDialog from '@/components/library/AddBookDialog'
 
 type Phase = 'orient' | 'reflect' | 'connect' | 'act'
 
@@ -74,12 +74,7 @@ export default async function LibraryPage() {
     <div className="px-4 pt-6 pb-4 max-w-2xl mx-auto md:max-w-none md:px-6">
       <div className="flex items-center justify-between mb-5">
         <h1 className="font-display text-2xl font-semibold text-ink">Your Library</h1>
-        <Link
-          href="/library/add"
-          className="bg-cayenne text-white text-sm font-medium px-4 py-2 rounded-pill hover:bg-cayenne/90 transition-colors"
-        >
-          + Add Book
-        </Link>
+        <AddBookDialog />
       </div>
 
       {currentBook && (
@@ -111,12 +106,7 @@ export default async function LibraryPage() {
         <div className="text-center py-16">
           <p className="font-display text-lg text-ink mb-1">Start your first book</p>
           <p className="text-muted text-sm mb-6">Search for any nonfiction book to get started.</p>
-          <Link
-            href="/library/add"
-            className="inline-block bg-cayenne text-white text-sm font-medium px-6 py-2.5 rounded-pill hover:bg-cayenne/90 transition-colors"
-          >
-            Add a Book
-          </Link>
+          <AddBookDialog />
         </div>
       )}
     </div>
