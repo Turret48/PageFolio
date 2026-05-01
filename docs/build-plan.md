@@ -2,6 +2,8 @@
 
 Ordered build steps. Complete each fully before starting the next.
 
+**Progress as of 2026-04-30: Steps 1–5 ✅ — next is Step 6.**
+
 ---
 
 ### Step 1 — Project initialization
