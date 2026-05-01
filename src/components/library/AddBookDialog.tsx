@@ -106,10 +106,10 @@ export default function AddBookDialog() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
 
-          <div className="relative w-full md:max-w-lg bg-surface rounded-t-[24px] md:rounded-card md:mx-4 max-h-[90vh] flex flex-col">
+          <div className="relative w-full md:max-w-lg bg-surface rounded-t-[24px] md:rounded-card md:mx-4 max-h-[85vh] flex flex-col pb-20 md:pb-0">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h2 className="font-display text-lg font-medium text-ink">Add a Book</h2>
               <button onClick={handleClose} className="text-muted hover:text-ink p-1">
