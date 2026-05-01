@@ -10,7 +10,9 @@
       "Bash(git push *)",
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "Bash(npm run *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npx skills *)",
+      "Bash(npx tsc *)"
     ]
   }
 }
