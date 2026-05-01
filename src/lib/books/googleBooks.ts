@@ -21,6 +21,17 @@ const EXCLUDED_CATEGORIES = [
   'medical', 'journal', 'periodical', 'juvenile', "children's",
 ]
 
+const DERIVATIVE_PATTERNS = [
+  /^summary[:\s&]/i,
+  /^summary of /i,
+  /^analysis of /i,
+  /^study guide/i,
+  /^workbook/i,
+  /^key (insights|takeaways|lessons)/i,
+  /\bin \d+ minutes\b/i,
+  /\b(penzen|getabstract|blinkist|sapiens summaries|black book)\b/i,
+]
+
 function isNonfiction(categories: string[]): boolean {
   const lower = categories.map((c) => c.toLowerCase()).join(' ')
   if (FICTION_SIGNALS.some((s) => lower.includes(s))) return false
@@ -28,10 +39,18 @@ function isNonfiction(categories: string[]): boolean {
   return true
 }
 
-function isUsableBook(candidate: BookCandidate): boolean {
+function isDerivativeWork(title: string): boolean {
+  return DERIVATIVE_PATTERNS.some((p) => p.test(title))
+}
+
+function isUsableBook(candidate: BookCandidate, ratingsCount: number | null): boolean {
   if (!candidate.coverUrl) return false
   if (candidate.author === 'Unknown') return false
   if (candidate.publishedYear && candidate.publishedYear < 1950) return false
+  if (isDerivativeWork(candidate.title)) return false
+  // Drop books with a very low rating count — proxy for obscurity.
+  // Books with no rating at all are kept (could be popular but not yet rated on Google Books).
+  if (ratingsCount !== null && ratingsCount < 10) return false
   return true
 }
 
@@ -69,9 +88,15 @@ export async function searchBooks(query: string): Promise<BookCandidate[]> {
   const data = (await res.json()) as { items?: Record<string, unknown>[] }
   if (!data.items) return []
 
-  return data.items
-    .map(toCandidate)
-    .filter((b) => isNonfiction(b.categories) && isUsableBook(b))
+  return data.items.reduce<BookCandidate[]>((acc, item) => {
+    const candidate = toCandidate(item)
+    const info = (item.volumeInfo ?? {}) as Record<string, unknown>
+    const ratingsCount = (info.ratingsCount as number | undefined) ?? null
+    if (isNonfiction(candidate.categories) && isUsableBook(candidate, ratingsCount)) {
+      acc.push(candidate)
+    }
+    return acc
+  }, [])
 }
 
 export async function searchByISBN(isbn: string): Promise<BookCandidate[]> {
