@@ -2,7 +2,7 @@
 
 Ordered build steps. Complete each fully before starting the next.
 
-**Progress as of 2026-04-30: Steps 1–5 ✅ — next is Step 6.**
+**Progress as of 2026-05-01: Steps 1–7 ✅ — next is Step 8.**
 
 ---
 

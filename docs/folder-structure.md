@@ -107,6 +107,8 @@ pagefolio/
     │   ├── ai/
     │   │   ├── prompts.ts             ← All AI system prompts
     │   │   └── utils.ts               ← Shared AI helpers
+    │   ├── actions/
+    │   │   └── progress.ts            ← Server actions for phase completion (markOrientComplete, etc.)
     │   ├── books/
     │   │   └── googleBooks.ts         ← Google Books API wrapper
     │   └── utils.ts                   ← General helpers
