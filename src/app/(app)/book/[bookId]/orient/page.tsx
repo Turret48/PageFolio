@@ -12,29 +12,33 @@ export default async function OrientPage({ params }: { params: { bookId: string 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [userBook] = await db.select({ id: userBooks.id }).from(userBooks)
-    .where(and(eq(userBooks.user_id, user.id), eq(userBooks.book_id, bookId)))
-  if (!userBook) redirect('/library')
+  const [row] = await db
+    .select({
+      title: books.title,
+      author: books.author,
+      coverUrl: books.cover_url,
+      orientCompletedAt: userProgress.orient_completed_at,
+    })
+    .from(books)
+    .innerJoin(userBooks, and(
+      eq(userBooks.book_id, books.id),
+      eq(userBooks.user_id, user.id),
+    ))
+    .leftJoin(userProgress, and(
+      eq(userProgress.book_id, books.id),
+      eq(userProgress.user_id, user.id),
+    ))
+    .where(eq(books.id, bookId))
 
-  const [book] = await db.select({
-    title: books.title,
-    author: books.author,
-    coverUrl: books.cover_url,
-  }).from(books).where(eq(books.id, bookId))
-  if (!book) redirect('/library')
-
-  const [progress] = await db.select({
-    orientCompletedAt: userProgress.orient_completed_at,
-  }).from(userProgress)
-    .where(and(eq(userProgress.user_id, user.id), eq(userProgress.book_id, bookId)))
+  if (!row) redirect('/library')
 
   return (
     <OrientView
       bookId={bookId}
-      title={book.title}
-      author={book.author}
-      coverUrl={book.coverUrl}
-      isCompleted={!!progress?.orientCompletedAt}
+      title={row.title}
+      author={row.author}
+      coverUrl={row.coverUrl}
+      isCompleted={!!row.orientCompletedAt}
     />
   )
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { markOrientComplete } from '@/lib/actions/progress'
 
-type BigIdea = { label: string; theme: 'mindset' | 'systems' | 'relationships' | 'performance' | 'creativity' }
+type BigIdea = { label: string; description?: string; theme: 'mindset' | 'systems' | 'relationships' | 'performance' | 'creativity' }
 
 const THEME_STYLES: Record<string, { bg: string; text: string; border: string }> = {
   mindset:       { bg: '#FDF0E8', text: '#9A5020', border: '#F4D8C0' },
@@ -79,17 +79,24 @@ export default function OrientView({ bookId, title, author, coverUrl, isComplete
       {bigIdeas.length > 0 && (
         <section className="mb-8">
           <p className="text-[10px] uppercase tracking-[0.09em] text-muted mb-3">Big Ideas</p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="space-y-3">
             {bigIdeas.map((idea) => {
               const s = THEME_STYLES[idea.theme]
               return (
                 <div
                   key={idea.label}
-                  style={{ backgroundColor: s.bg, color: s.text, borderColor: s.border }}
-                  className="rounded-xl border p-3"
+                  style={{ backgroundColor: s.bg, borderColor: s.border }}
+                  className="rounded-xl border p-4"
                 >
-                  <p className="text-xs font-medium leading-snug">{idea.label}</p>
-                  <p className="text-[10px] mt-1 opacity-70 capitalize">{idea.theme}</p>
+                  <p className="text-[10px] uppercase tracking-[0.09em] mb-1.5 capitalize"
+                    style={{ color: s.text }}>{idea.theme}</p>
+                  <p className="text-sm font-semibold leading-snug mb-2"
+                    style={{ color: s.text }}>{idea.label}</p>
+                  {idea.description && (
+                    <p className="text-sm leading-relaxed" style={{ color: s.text, opacity: 0.8 }}>
+                      {idea.description}
+                    </p>
+                  )}
                 </div>
               )
             })}
@@ -112,8 +119,8 @@ export default function OrientView({ bookId, title, author, coverUrl, isComplete
 
 function OrientSkeleton() {
   return (
-    <div className="px-4 pt-6 max-w-2xl mx-auto animate-pulse">
-      <div className="flex gap-3 mb-6">
+    <div className="px-4 pt-6 max-w-2xl mx-auto">
+      <div className="flex gap-3 mb-6 animate-pulse">
         <div className="w-14 h-20 bg-border/50 rounded-lg flex-shrink-0" />
         <div className="flex-1 space-y-2 py-2">
           <div className="h-2.5 bg-border/50 rounded w-1/4" />
@@ -121,13 +128,18 @@ function OrientSkeleton() {
           <div className="h-3 bg-border/50 rounded w-1/2" />
         </div>
       </div>
-      <div className="h-2.5 bg-border/50 rounded w-1/4 mb-3" />
-      <div className="space-y-2 mb-6">
-        {[1, 2, 3, 4].map((i) => <div key={i} className="h-4 bg-border/50 rounded" />)}
-      </div>
-      <div className="h-2.5 bg-border/50 rounded w-1/4 mb-3" />
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-16 bg-border/50 rounded-xl" />)}
+
+      <div className="flex flex-col items-center py-10 gap-4">
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-cayenne animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            />
+          ))}
+        </div>
+        <p className="text-sm text-muted">Generating your summary…</p>
       </div>
     </div>
   )

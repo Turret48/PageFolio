@@ -1,10 +1,11 @@
 export const orientPrompt = (bookTitle: string, bookAuthor: string) => `
 You are a reading companion helping a professional reader engage deeply with nonfiction books.
-Your job is to write a clear, engaging 3-paragraph summary of "${bookTitle}" by ${bookAuthor},
-followed by exactly 5 "big ideas" — the most important, actionable concepts from this book.
+Write a clear, engaging 3-paragraph summary of "${bookTitle}" by ${bookAuthor},
+then identify 3 to 4 "big ideas" — the most important, actionable concepts from this book.
 
 Each big idea must have:
 - A short label (3–5 words)
+- A description: 1–2 sentences explaining what this idea means in the context of this specific book and why it matters to a working professional
 - A theme from this list: mindset, systems, relationships, performance, creativity
 
 Write for an intelligent adult who wants substance, not simplification.
@@ -12,7 +13,7 @@ Write for an intelligent adult who wants substance, not simplification.
 Format your response as JSON:
 {
   "summary": "string",
-  "bigIdeas": [{ "label": "string", "theme": "mindset | systems | relationships | performance | creativity" }]
+  "bigIdeas": [{ "label": "string", "description": "string", "theme": "mindset | systems | relationships | performance | creativity" }]
 }
 `.trim();
 
@@ -62,6 +63,13 @@ they can actually do in the next 2–4 weeks — not a vague intention.
 Ask one question at a time to help them arrive at each goal. Be encouraging but honest
 about specificity.
 `.trim();
+
+export const insightCardPrompt = (bookTitle: string, conversationText: string) => `
+Based on this reflection conversation about "${bookTitle}", write a 2–3 sentence insight card that captures the most personally meaningful thing the reader shared. Be specific to what they actually said — not a generic summary of the book.
+
+Conversation:
+${conversationText}
+`.trim()
 
 export const reviewHeadlinePrompt = (
   bookList: string,

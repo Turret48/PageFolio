@@ -15,7 +15,10 @@ Pagefolio is a nonfiction reading companion mobile app for curious professionals
 - **Framework**: Next.js 14+ (App Router), TypeScript strict mode
 - **Auth + DB**: Supabase (PostgreSQL)
 - **ORM**: Drizzle ORM — schema lives in `src/lib/db/schema.ts`
-- **AI**: Vercel AI SDK + Anthropic `claude-sonnet-4-20250514`
+- **AI**: Vercel AI SDK + Anthropic `claude-sonnet-4-6`
+  - API key is stored as `PAGEFOLIO_AI_KEY` in `.env.local` (NOT `ANTHROPIC_API_KEY` — Claude Code injects an empty `ANTHROPIC_API_KEY` that overrides `.env.local`, so the project uses a different name)
+  - Claude Code also injects `ANTHROPIC_BASE_URL=https://api.anthropic.com` (missing `/v1`), causing 404s
+  - Always use `createAnthropic({ apiKey: process.env.PAGEFOLIO_AI_KEY!, baseURL: 'https://api.anthropic.com/v1' })`
 - **Client state**: Zustand
 - **Server state / caching**: TanStack Query (React Query)
 - **Graph visualization**: React Flow
