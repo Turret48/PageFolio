@@ -52,7 +52,7 @@ export default function BookShelf({ books, label }: Props) {
                   </div>
                 )}
               </div>
-              <p className="text-xs text-ink mt-2 leading-tight line-clamp-2 font-medium">{book.title}</p>
+              <p className="text-xs text-ink mt-2 leading-tight line-clamp-1 font-medium">{book.title}</p>
               <p className="text-[10px] mt-1 text-muted">
                 {allDone
                   ? <span className="text-cayenne">Complete</span>
