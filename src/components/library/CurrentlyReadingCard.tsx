@@ -26,7 +26,7 @@ export default function CurrentlyReadingCard({
     <div className="bg-cayenne rounded-featured p-4 text-white">
       <p className="text-[10px] uppercase tracking-[0.09em] text-white/70 mb-3">Currently Reading</p>
 
-      <div className="flex gap-4 items-start">
+      <Link href={`/book/${bookId}`} className="flex gap-4 items-start flex-1 min-w-0">
         <div className="w-16 flex-shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-white/10">
           {coverUrl ? (
             <img src={coverUrl} alt={title} className="w-full h-full object-cover" />
@@ -48,7 +48,7 @@ export default function CurrentlyReadingCard({
             <PhaseBar currentPhase={currentPhase} completedPhases={completedPhases} />
           </div>
         </div>
-      </div>
+      </Link>
 
       <Link
         href={`/book/${bookId}/${currentPhase}`}
