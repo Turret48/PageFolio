@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import PhaseBar from '@/components/ui/PhaseBar'
 
 type Phase = 'orient' | 'reflect' | 'connect' | 'act'
 
@@ -58,6 +59,9 @@ export default function BookShelf({ books, label }: Props) {
                   : <><span className="text-cayenne">{PHASE_LABELS[book.currentPhase]}</span>{' · '}{phaseIndex + 1} of 4</>
                 }
               </p>
+              <div className="mt-1.5">
+                <PhaseBar currentPhase={book.currentPhase} completedPhases={book.completedPhases} />
+              </div>
             </Link>
           )
         })}
