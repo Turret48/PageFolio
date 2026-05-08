@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { userBooks, books, userProgress } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import CurrentlyReadingCard from '@/components/library/CurrentlyReadingCard'
-import BookGrid from '@/components/library/BookGrid'
+import BookShelf from '@/components/library/BookShelf'
 import AddBookDialog from '@/components/library/AddBookDialog'
 
 type Phase = 'orient' | 'reflect' | 'connect' | 'act'
@@ -54,21 +54,19 @@ export default async function LibraryPage() {
   const active = library.filter((b) => b.status === 'active')
   const currentBook = active[0] ?? null
 
-  const gridBooks = library
-    .filter((b) => !currentBook || b.bookId !== currentBook.bookId)
-    .map((b) => ({
-      bookId: b.bookId,
-      title: b.title,
-      author: b.author,
-      coverUrl: b.coverUrl,
-      currentPhase: (b.currentPhase ?? 'orient') as Phase,
-      completedPhases: b.orientCompletedAt !== undefined ? getCompletedPhases({
-        orient_completed_at: b.orientCompletedAt,
-        reflect_completed_at: b.reflectCompletedAt,
-        connect_completed_at: b.connectCompletedAt,
-        act_completed_at: b.actCompletedAt,
-      }) : [],
-    }))
+  const shelfBooks = library.map((b) => ({
+    bookId: b.bookId,
+    title: b.title,
+    coverUrl: b.coverUrl,
+    currentPhase: (b.currentPhase ?? 'orient') as Phase,
+    completedPhases: getCompletedPhases({
+      orient_completed_at: b.orientCompletedAt,
+      reflect_completed_at: b.reflectCompletedAt,
+      connect_completed_at: b.connectCompletedAt,
+      act_completed_at: b.actCompletedAt,
+    }),
+    isCurrent: currentBook?.bookId === b.bookId,
+  }))
 
   return (
     <div className="px-4 pt-6 pb-4 max-w-2xl mx-auto md:max-w-none md:px-6">
@@ -95,12 +93,7 @@ export default async function LibraryPage() {
         </div>
       )}
 
-      {gridBooks.length > 0 && (
-        <>
-          <p className="text-[10px] uppercase tracking-[0.09em] text-muted mb-3">All Books</p>
-          <BookGrid books={gridBooks} />
-        </>
-      )}
+      <BookShelf books={shelfBooks} label="Your Shelf" />
 
       {library.length === 0 && (
         <div className="text-center py-16">
