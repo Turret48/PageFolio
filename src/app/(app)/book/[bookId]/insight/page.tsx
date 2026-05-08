@@ -3,11 +3,9 @@ import { eq, and } from 'drizzle-orm'
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 import { books, userBooks, userProgress } from '@/lib/db/schema'
-import ReflectChat from '@/components/phases/ReflectChat'
+import InsightCardPreview from '@/components/phases/InsightCardPreview'
 
-type Msg = { role: 'user' | 'assistant'; content: string }
-
-export default async function ReflectPage({ params }: { params: { bookId: string } }) {
+export default async function InsightPage({ params }: { params: { bookId: string } }) {
   const { bookId } = params
 
   const supabase = await createClient()
@@ -19,9 +17,8 @@ export default async function ReflectPage({ params }: { params: { bookId: string
       title: books.title,
       author: books.author,
       coverUrl: books.cover_url,
-      orientCompletedAt: userProgress.orient_completed_at,
       reflectCompletedAt: userProgress.reflect_completed_at,
-      reflectMessages: userProgress.reflect_messages,
+      insightCardText: userProgress.insight_card_text,
     })
     .from(books)
     .innerJoin(userBooks, and(
@@ -35,16 +32,15 @@ export default async function ReflectPage({ params }: { params: { bookId: string
     .where(eq(books.id, bookId))
 
   if (!row) redirect('/library')
-  if (!row.orientCompletedAt) redirect(`/book/${bookId}/orient`)
+  if (!row.reflectCompletedAt || !row.insightCardText) redirect(`/book/${bookId}/reflect`)
 
   return (
-    <ReflectChat
+    <InsightCardPreview
       bookId={bookId}
       title={row.title}
       author={row.author}
       coverUrl={row.coverUrl}
-      savedMessages={(row.reflectMessages as Msg[] | null) ?? null}
-      isCompleted={!!row.reflectCompletedAt}
+      insightCard={row.insightCardText}
     />
   )
 }

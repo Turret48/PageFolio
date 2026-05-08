@@ -12,19 +12,17 @@ interface Props {
   author: string
   coverUrl: string | null
   savedMessages: Msg[] | null
-  savedInsightCard: string | null
   isCompleted: boolean
 }
 
 export default function ReflectChat({
-  bookId, title, author, coverUrl, savedMessages, savedInsightCard, isCompleted,
+  bookId, title, author, coverUrl, savedMessages, isCompleted,
 }: Props) {
   const router = useRouter()
   const [messages, setMessages] = useState<Msg[]>(savedMessages ?? [])
   const [streaming, setStreaming] = useState('')
   const [input, setInput] = useState('')
   const [status, setStatus] = useState<Status>(isCompleted ? 'done' : 'loading')
-  const [insightCard, setInsightCard] = useState<string | null>(savedInsightCard)
   const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const didFetch = useRef(false)
@@ -86,8 +84,7 @@ export default function ReflectChat({
     })
     const data = await res.json()
     if (data.error) { setError(data.error); setStatus('chatting'); return }
-    setInsightCard(data.insightCard)
-    setStatus('done')
+    router.push(`/book/${bookId}/insight`)
   }
 
   return (
@@ -116,12 +113,6 @@ export default function ReflectChat({
             <span className="text-xs text-muted">Thinking…</span>
           </div>
         )}
-        {status === 'done' && insightCard && (
-          <div className="mt-4 p-4 rounded-card border border-cayenne/20 bg-cayenne/5">
-            <p className="text-[10px] uppercase tracking-[0.09em] text-cayenne mb-2">Your Insight</p>
-            <p className="text-sm text-ink leading-relaxed">{insightCard}</p>
-          </div>
-        )}
         {error && <p className="text-sm text-red-500">{error}</p>}
         <div ref={bottomRef} />
       </div>
@@ -129,10 +120,10 @@ export default function ReflectChat({
       <div className="fixed bottom-16 md:bottom-0 left-0 md:left-56 right-0 bg-surface/95 backdrop-blur-sm border-t border-border px-4 py-3 z-40 space-y-2">
         {status === 'done' ? (
           <button
-            onClick={() => router.push(`/book/${bookId}/connect`)}
+            onClick={() => router.push(`/book/${bookId}/insight`)}
             className="w-full bg-cayenne text-white text-sm font-medium py-3 rounded-pill hover:bg-cayenne/90 transition-colors"
           >
-            Continue to Connect →
+            View Insight Card →
           </button>
         ) : (
           <>
